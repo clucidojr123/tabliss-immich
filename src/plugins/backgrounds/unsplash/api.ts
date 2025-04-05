@@ -47,6 +47,10 @@ export const fetchImages = async ({
 
   // TODO: validate types
 
+  if (!Array.isArray(body)) {
+    return [];
+  }
+
   return body.map((item: any) => ({
     src: item.urls.raw,
     credit: {
