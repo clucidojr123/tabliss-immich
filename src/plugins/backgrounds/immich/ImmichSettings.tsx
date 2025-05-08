@@ -20,26 +20,37 @@ const ImmichSettings: React.FC<Props> = ({
   const fetchAlbums = useCallback(async () => {
     loader.push();
     try {
-      // TODO: get shared albums as well
-      const response = await fetch(`${serverUrl}/api/albums`, {
-        headers: {
-          "Content-Type": "application/json",
-          "X-Api-Key": apiKey,
-        },
-      });
+      // Fetch both regular and shared albums
+      const [regularResponse, sharedResponse] = await Promise.all([
+        fetch(`${serverUrl}/api/albums`, {
+          headers: {
+            "Content-Type": "application/json",
+            "X-Api-Key": apiKey,
+          },
+        }),
+        fetch(`${serverUrl}/api/albums?shared=true`, {
+          headers: {
+            "Content-Type": "application/json",
+            "X-Api-Key": apiKey,
+          },
+        }),
+      ]);
 
-      if (!response.ok) {
+      if (!regularResponse.ok || !sharedResponse.ok) {
         throw new Error("Failed to fetch albums");
       }
 
-      const data = await response.json();
-      setAlbums(data);
+      const regularAlbums = await regularResponse.json();
+      const sharedAlbums = await sharedResponse.json();
+      const allAlbums = [...regularAlbums, ...sharedAlbums];
+
+      setAlbums(allAlbums);
       setCache({ ...cache, serverUrl, apiKey });
     } catch (error) {
       console.error("Error fetching albums: ", error);
     }
     loader.pop();
-  }, [serverUrl, apiKey, loader]);
+  }, [serverUrl, apiKey, loader, cache, setCache]);
 
   const fetchAssetsInAlbum = useCallback(
     async (albumId: string) => {
@@ -66,13 +77,13 @@ const ImmichSettings: React.FC<Props> = ({
             id: a.id,
           }));
 
-        setCache({ ...cache, assets: normalizedAssets });
+        setCache({ ...cache, assets: normalizedAssets, selectedAlbumId: albumId });
       } catch (error) {
         console.error("Error fetching assets: ", error);
       }
       loader.pop();
     },
-    [serverUrl, apiKey],
+    [serverUrl, apiKey, cache, setCache],
   );
 
   return (
@@ -91,12 +102,14 @@ const ImmichSettings: React.FC<Props> = ({
         <input
           autoComplete="off"
           id="apiKey"
-          type="text"
+          type="password"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
         />
       </div>
-      <button onClick={() => fetchAlbums()}>Fetch Albums</button>
+      <button onClick={() => fetchAlbums()} type="button">
+        Fetch Albums
+      </button>
       {albums.length > 0 ? (
         <select
           name="selectedAlbumId"
@@ -104,7 +117,6 @@ const ImmichSettings: React.FC<Props> = ({
           value={cache.selectedAlbumId}
           onChange={(e) => {
             fetchAssetsInAlbum(e.target.value);
-            setCache({ ...cache, selectedAlbumId: e.target.value });
           }}
         >
           {albums.map((album) => (

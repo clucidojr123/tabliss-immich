@@ -1,10 +1,12 @@
-<h1 align="center">Tabliss</h1>
+<h1 align="center">Tabliss-Immich</h1>
 
-<p align="center">A beautiful, customisable New Tab page for Firefox and Chrome.</p>
+<p align="center">A beautiful, customisable New Tab page for Firefox and Chrome, with support for using an Immich album as a background image. Fork of <a href="https://github.com/joelshepherd/tabliss">Tabliss</a></p>
 
 ![Tabliss Screenshot](screenshot.png)
 
-<p align="center"><a href="https://tabliss.io">https://tabliss.io</a></p>
+<div align="center">
+<a href="https://tabliss.io">Tabliss</a> - <a href="https://immich.app/">Immich</a>
+</div>
 
 ## Usage
 

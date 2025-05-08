@@ -1,9 +1,9 @@
 {
   "manifest_version": 2,
-  "name": "Tabliss",
+  "name": "Tabliss-Immich",
   "short_name": "Tabliss",
   "version": "2.6.0",
-  "description": "A beautiful New Tab page with many customisable backgrounds and widgets that does not require any permissions.",
+  "description": "A beautiful New Tab page with many customisable backgrounds and widgets, with support for using an Immich album as a background image.",
   "applications": {
     "gecko": {
       "id": "extension@tabliss.io",

@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Tabliss - A Beautiful New Tab",
-  "short_name": "Tabliss",
+  "name": "Tabliss-Immich - A Beautiful New Tab",
+  "short_name": "Tabliss-Immich",
   "version": "2.6.0",
-  "description": "A beautiful New Tab page with many customisable backgrounds and widgets that does not require any permissions.",
+  "description": "A beautiful New Tab page with many customisable backgrounds and widgets, with support for using an Immich album as a background image.",
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
