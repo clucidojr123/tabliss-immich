@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import Backdrop from "../../../views/shared/Backdrop";
 import "./Immich.sass";
 import { Cache, defaultCache, Props } from "./types";
+import { fetchAssetsInAlbum } from "./util";
 
 const getImageUrl = async (cache: Cache, assetId: string) => {
   const response = await fetch(
-    `${cache.serverUrl}/api/assets/${assetId}/original`,
+    `${cache.serverUrl}/api/assets/${assetId}/thumbnail?size=fullsize`,
     {
       headers: {
         "X-Api-Key": cache.apiKey || "",
@@ -21,7 +22,30 @@ const getImageUrl = async (cache: Cache, assetId: string) => {
   return URL.createObjectURL(blob);
 };
 
-const Immich: React.FC<Props> = ({ cache = defaultCache, loader }) => {
+const fetchAssetsInAlbumCallback = async (cache: Cache, setCache: (cache: Cache) => void) => {
+  try {
+    const assets = await fetchAssetsInAlbum(cache.serverUrl!, cache.apiKey!, cache.selectedAlbumId!);
+    setCache({ ...cache, assets, refreshedAt: new Date() });
+  } catch (error) {
+    console.error("Error fetching assets: ", error);
+  }
+};
+
+const shouldRefreshCache = (cache: Cache): boolean => {
+  if (!cache.refreshedAt) {
+    return true;
+  }
+  
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+  console.log("cache.refreshedAt", cache.refreshedAt);
+  console.log("oneWeekAgo", oneWeekAgo);
+  
+  return cache.refreshedAt < oneWeekAgo;
+};
+
+const Immich: React.FC<Props> = ({ cache = defaultCache, loader, setCache }) => {
   const didRun = useRef(false);
   const [url, setUrl] = useState<string | null>(null);
   useEffect(() => {
@@ -44,6 +68,11 @@ const Immich: React.FC<Props> = ({ cache = defaultCache, loader }) => {
     if (cache.apiKey && cache.serverUrl && cache.selectedAlbumId) {
       loader.push();
       fetchImage().finally(() => loader.pop());
+
+      // Check if cache needs refreshing
+      if (shouldRefreshCache(cache)) {
+        fetchAssetsInAlbumCallback(cache, setCache);
+      }
     }
 
     return () => {

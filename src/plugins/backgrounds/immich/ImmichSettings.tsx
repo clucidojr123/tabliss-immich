@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import "./ImmichSettings.sass";
 import { defaultCache, Props } from "./types";
+import { fetchAssetsInAlbum } from "./util";
 
 interface ImmichAlbum {
   id: string;
@@ -52,32 +53,12 @@ const ImmichSettings: React.FC<Props> = ({
     loader.pop();
   }, [serverUrl, apiKey, loader, cache, setCache]);
 
-  const fetchAssetsInAlbum = useCallback(
+  const fetchAssetsInAlbumCallback = useCallback(
     async (albumId: string) => {
       loader.push();
       try {
-        const response = await fetch(
-          `${serverUrl}/api/albums/${albumId}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "X-Api-Key": apiKey,
-            },
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch assets");
-        }
-
-        const { assets } = await response.json();
-        const normalizedAssets = assets
-          ?.filter((a: Record<string, any>) => a.type === "IMAGE")
-          .map((a: Record<string, any>) => ({
-            id: a.id,
-          }));
-
-        setCache({ ...cache, assets: normalizedAssets, selectedAlbumId: albumId });
+        const assets = await fetchAssetsInAlbum(serverUrl, apiKey, albumId);
+        setCache({ ...cache, assets, selectedAlbumId: albumId, refreshedAt: new Date() });
       } catch (error) {
         console.error("Error fetching assets: ", error);
       }
@@ -116,7 +97,7 @@ const ImmichSettings: React.FC<Props> = ({
           id="selectedAlbumId"
           value={cache.selectedAlbumId}
           onChange={(e) => {
-            fetchAssetsInAlbum(e.target.value);
+            fetchAssetsInAlbumCallback(e.target.value);
           }}
         >
           {albums.map((album) => (

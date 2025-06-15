@@ -7,6 +7,7 @@ export type Cache = {
     apiKey?: string;
     selectedAlbumId?: string;
     assets?: any[];
+    refreshedAt?: Date;
 };
 
 export type Props = API<Data, Cache>;
