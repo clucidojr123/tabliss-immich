@@ -6,7 +6,7 @@
   "description": "A beautiful New Tab page with many customisable backgrounds and widgets, with support for using an Immich album as a background image.",
   "applications": {
     "gecko": {
-      "id": "extension@tabliss.io",
+      "id": "extension@tabliss-immich",
       "strict_min_version": "54.0"
     }
   },
